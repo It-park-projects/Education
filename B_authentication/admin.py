@@ -8,7 +8,7 @@ class NewMyUser(UserAdmin):
     add_form = CreasteUser
     form = ChangeUser
     model = CustumUsers
-    list_display = ['username','first_name','last_name',]
+    list_display = ['username','first_name','last_name','id',]
     fieldsets = UserAdmin.fieldsets + (
         (None,{'fields':('midile_name','address','phone','passort_seria','price','total_price_persent','education_main','education_filial',)}),
     )

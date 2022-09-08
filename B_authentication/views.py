@@ -19,6 +19,35 @@ def get_token_for_user(user):
         'accsess':str(refresh.access_token)
     }
 
+class UserLoginViews(APIView):
+    render_classes = [UserRenderers]
+    def post(self,request,format=None):
+        serializers = UserLoginSerializers(data=request.data, partial=True)
+        if serializers.is_valid(raise_exception=True):
+            username = serializers.data['username']
+            password = serializers.data['password']
+            user = authenticate(username=username,password=password)
+            if user is not None:
+                token = get_token_for_user(user)
+                return Response({'token':token,'message':'Login success'},status=status.HTTP_200_OK)
+            else:
+                return Response({'error':{'none_filed_error':['Email or password is not valid']}},status=status.HTTP_404_NOT_FOUND)
+        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserProfilesView(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        serializer = UserPorfilesSerializers(request.user)
+        return Response(serializer.data,status=status.HTTP_200_OK)
+
+
+
+
+
+
+
 class AllUsers(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
