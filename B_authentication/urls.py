@@ -9,5 +9,10 @@ urlpatterns = [
     path('user_update/<int:id>/',UserUpdateView.as_view()),
     path('user_delete/<int:id>/',UserDeleteView.as_view()),
     path('all_user_delete/',AllUserDeleteView.as_view()),
-    path('user_logout_views/',UserLogoutView.as_view())
+    path('user_logout_views/',UserLogoutView.as_view()),
+
+    # Education_views
+    path('education_views/',EducationViews.as_view()),
+    path('education_filial_views/',EducationFilialViews.as_view()),
+    path('education_deteilw_views/<int:pk>/',EducationFiliDeteileViews.as_view()),
 ]

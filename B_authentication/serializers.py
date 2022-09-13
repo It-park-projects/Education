@@ -46,9 +46,41 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class UserPorfilesSerializers(serializers.ModelSerializer):
     class Meta:
         model = CustumUsers
-        fields = ['username','id',]
+        fields = ['username','id','groups_id',]
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustumUsers
         fields = '__all__'
+
+
+class EduacationMainSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Education_main
+        fields = ['id','education_name','address_education','phone',]
+
+    def create(self, validated_data):
+        return Education_main.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        instance.education_name = validated_data.get('education_name',instance.education_name)
+        instance.address_education = validated_data.get('address_education',instance.address_education)
+        instance.phone = validated_data.get('phone',instance.phone)
+        instance.save() 
+        return instance()
+
+class EduacationFilialSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = Education_filial
+        fields = ['id','education_name','address_education','id_education','phone',]
+
+    def create(self, validated_data):
+        return Education_filial.objects.create(**validated_data)
+    
+    def update(self, instance, validated_data):
+        instance.education_name = validated_data.get('education_name',instance.education_name)
+        instance.address_education = validated_data.get('address_education',instance.address_education)
+        instance.phone = validated_data.get('phone',instance.phone)
+        instance.id_education = validated_data.get('id_education',instance.id_education)
+        instance.save() 
+        return instance

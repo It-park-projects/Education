@@ -17,7 +17,7 @@ class Education_group(models.Model):
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
 
-class Education_students(models.Model):
+class Education_students(models.Model): 
     parent_tg_id = models.CharField(max_length=50,null=True,blank=True)
     first_name = models.CharField(max_length=100,null=True,blank=True)
     last_name = models.CharField(max_length=100,null=True,blank=True)

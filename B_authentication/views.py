@@ -1,3 +1,4 @@
+from os import stat
 from rest_framework.response import Response
 from rest_framework import status,authentication,permissions
 from rest_framework import permissions, status
@@ -93,9 +94,43 @@ class UserLogoutView(APIView):
         return Response({"status": "OK, goodbye"})
 
 
+# Education views
+class EducationViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        education_main = Education_main.objects.all()
+        serializers = EduacationMainSerializers(education_main,many=True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
 
 
-
+class EducationFilialViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        education_main = Education_filial.objects.all()
+        serializers = EduacationFilialSerializers(education_main,many=True)      
+        return Response(serializers.data,status=status.HTTP_200_OK)
+    def post(self,request,format=None):
+        serializers = EduacationFilialSerializers(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            serializers.save()
+            return Response({'msg':'Create Sucsess'},status=status.HTTP_201_CREATED)
+        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+class EducationFiliDeteileViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,pk,format=None):
+        education = Education_filial.objects.filter(id=pk)
+        serializers = EduacationFilialSerializers(education,many=True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
+    def put(self,request,pk,format=None):
+        # education = Education_filial.objects.get(id=pk) 
+        serializers = EduacationFilialSerializers(instance=Education_filial.objects.filter(id=pk)[0],data=request.data,partial =True)
+        if serializers.is_valid(raise_exception=True):
+            serializers.save()
+            return Response({'message':"success update"},status=status.HTTP_200_OK)
+        return Response({'error':'update error data'},status=status.HTTP_400_BAD_REQUEST)
 
 class AllUsers(APIView):
     render_classes = [UserRenderers]
