@@ -1,12 +1,14 @@
 from rest_framework.response import Response
 from rest_framework import status,authentication,permissions
+from rest_framework import permissions, status
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
-from django.http import Http404
-from django.core.paginator import Paginator
+from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, BlacklistedToken
 from django.contrib.auth.models import User
+from django.contrib.auth import logout
+from django.shortcuts import get_list_or_404
 from B_authentication.models import *
 from B_authentication.serializers import *
 from B_authentication.renderers import *
@@ -19,7 +21,7 @@ def get_token_for_user(user):
         'accsess':str(refresh.access_token)
     }
 
-class UserLoginViews(APIView):
+class UserLoginView(APIView):
     render_classes = [UserRenderers]
     def post(self,request,format=None):
         serializers = UserLoginSerializers(data=request.data, partial=True)
@@ -27,6 +29,7 @@ class UserLoginViews(APIView):
             username = serializers.data['username']
             password = serializers.data['password']
             user = authenticate(username=username,password=password)
+            print(user)
             if user is not None:
                 token = get_token_for_user(user)
                 return Response({'token':token,'message':'Login success'},status=status.HTTP_200_OK)
@@ -34,6 +37,15 @@ class UserLoginViews(APIView):
                 return Response({'error':{'none_filed_error':['Email or password is not valid']}},status=status.HTTP_404_NOT_FOUND)
         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 
+class UserRegisterView(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def post(self,request,format=None):
+        serializers = UserSerializer(data=request.data)
+        if serializers.is_valid(raise_exception=True):
+            serializers.save()
+            return Response({'msg':'success'},status=status.HTTP_201_CREATED)
+        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 
 class UserProfilesView(APIView):
     render_classes = [UserRenderers]
@@ -42,6 +54,43 @@ class UserProfilesView(APIView):
         serializer = UserPorfilesSerializers(request.user)
         return Response(serializer.data,status=status.HTTP_200_OK)
 
+class UserUpdateView(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def put(self,request,id,format=None):
+        data = request.data
+        serializers = UserSerializer(instance=CustumUsers.objects.filter(id=id)[0] ,data=data,partial =True)
+        if serializers.is_valid(raise_exception=True):
+            serializers.save()
+            return Response({"msg":'Saved'},status=status.HTTP_200_OK)
+        return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+        
+class UserDeleteView(APIView):
+    perrmisson_class = [IsAuthenticated]
+    def get(self, request,id, *args, **kwargs):
+        user=CustumUsers.objects.filter(id=id)
+        user.delete()
+        return Response({"msg":"user delete"},status=status.HTTP_200_OK)
+
+class AllUserDeleteView(APIView):
+    perrmisson_class = [IsAuthenticated]
+    def get(self, request, *args, **kwargs):
+        user=CustumUsers.objects.all()
+        user.delete()
+        return Response({"msg":"all user delete"},status=status.HTTP_200_OK)
+
+class UserLogoutView(APIView):
+    permission_classes  = [IsAuthenticated]
+    def post(self, request, *args, **kwargs):
+        if self.request.data.get('all'):
+            token: OutstandingToken
+            for token in OutstandingToken.objects.filter(user=request.user):
+                _, _ = BlacklistedToken.objects.get_or_create(token=token)
+            return Response({"status": "OK, goodbye, all refresh tokens blacklisted"})
+        refresh_token = self.request.data.get('refresh_token')
+        token = RefreshToken(token=refresh_token)
+        token.blacklist()
+        return Response({"status": "OK, goodbye"})
 
 
 
@@ -52,6 +101,6 @@ class AllUsers(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        all_user = CustumUsers.objects.all()
-        ser = CustomUserSerializer(all_user,many=True)
-        return Response(ser.data,status=status.HTTP_200_OK)
+        user = CustumUsers.objects.all()
+        serializer = CustomUserSerializer(user,many=True)
+        return Response(serializer.data,status=status.HTTP_200_OK)

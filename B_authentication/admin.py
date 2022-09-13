@@ -25,10 +25,3 @@ class EducationAdmin(admin.ModelAdmin):
 class EducationFiliaAdmin(admin.ModelAdmin):
     list_display = ['education_name']
 
-@admin.register(Education_group)
-class EducationGroupAdmin(admin.ModelAdmin):
-    list_display = ['name']
-
-@admin.register(Education_students)
-class EducationGroupAdmin(admin.ModelAdmin):
-    list_display = ['first_name','last_name']
