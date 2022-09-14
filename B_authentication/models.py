@@ -10,6 +10,9 @@ class Education_main(models.Model):
     payment_date = models.DateField(null=True,blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
+    
+    def __str__(self ):
+        return self.education_name
 
 class Education_filial(models.Model):
     education_name = models.CharField(max_length=100,null=True,blank=True)
@@ -19,6 +22,8 @@ class Education_filial(models.Model):
     payment_date = models.DateField(null=True,blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
+    def __str__(self ):
+        return self.education_name
 
 class CustumUsers(AbstractUser):
     midile_name = models.CharField(max_length=100,null=True,blank=True)

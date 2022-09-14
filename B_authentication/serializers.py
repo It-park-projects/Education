@@ -46,7 +46,7 @@ class UserSerializer(serializers.HyperlinkedModelSerializer):
 class UserPorfilesSerializers(serializers.ModelSerializer):
     class Meta:
         model = CustumUsers
-        fields = ['username','id','groups_id',]
+        fields = ['username','id','groups',]
 
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
