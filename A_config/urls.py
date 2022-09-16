@@ -10,5 +10,6 @@ urlpatterns = [
     path('api/token/refresh/', jwt_views.TokenRefreshView.as_view(), name='token_refresh'),
     path('api/b_authentication/',include('B_authentication.urls')),
     path('api/c_crud/',include('C_crud.urls')),
+    path('api/d_payment/',include('D_payment.urls')),
     
 ]+static(settings.MEDIA_URL,document_root=settings.MEDIA_ROOT)

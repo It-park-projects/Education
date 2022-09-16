@@ -1,4 +1,3 @@
-from os import stat
 from rest_framework.response import Response
 from rest_framework import status,authentication,permissions
 from rest_framework import permissions, status
@@ -30,7 +29,6 @@ class UserLoginView(APIView):
             username = serializers.data['username']
             password = serializers.data['password']
             user = authenticate(username=username,password=password)
-            print(user)
             if user is not None:
                 token = get_token_for_user(user)
                 return Response({'token':token,'message':'Login success'},status=status.HTTP_200_OK)

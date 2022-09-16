@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     # Apps
     'B_authentication',
     'C_crud',
+    'D_payment',
 ]
 
 MIDDLEWARE = [

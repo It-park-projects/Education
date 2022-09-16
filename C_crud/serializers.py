@@ -2,7 +2,6 @@ from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from B_authentication.models import *
 from C_crud.models import *
-from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
 class SubjectsList(serializers.ModelSerializer):
@@ -35,13 +34,12 @@ class EducationGroupSerializers(serializers.ModelSerializer):
 
 # Sudent Serializers
 class StudentsSerializers(serializers.ModelSerializer):
-    payment_date = serializers.DateField(style={'input_type': 'date'})
     class Meta:
         model = Education_students
         fields = '__all__'
     def create(self, validated_data):
         user_create = Education_students.objects.create(**validated_data)
-        user_create.payment_date = validated_data.get('payment_date') + relativedelta(months=1)
+        user_create.payment_date = validated_data.get('create_date') + relativedelta(months=1)
         user_create.save()
         return user_create 
     def update(self, instance, validated_data):
@@ -59,3 +57,9 @@ class StudentsSerializers(serializers.ModelSerializer):
         instance.group_id = validated_data.get('group_id',instance.group_id)
         instance.update_date = validated_data.get('update_date',instance.update_date)
         return instance
+    
+class StudentIsDebtorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Education_students
+        fields = "__all__"
+        

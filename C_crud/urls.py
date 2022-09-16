@@ -12,6 +12,7 @@ urlpatterns = [
 
     # Education students urls
     path('education_student_views/',StudentEducationViews.as_view()),
+    path('is_debtor_student_views/',IsDebtorView.as_view()),
     path('educ_student_detail_views/<int:pk>/',StudentGroupDeteileView.as_view()),
     
 
