@@ -9,6 +9,9 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.shortcuts import get_list_or_404
+from datetime import datetime,date
+from django.utils.dateparse import parse_date
+from dateutil.relativedelta import relativedelta
 from B_authentication.renderers import *
 from C_crud.serializers import *
 from C_crud.models import *
@@ -109,3 +112,24 @@ class StudentGroupDeteileView(APIView):
         subject = Education_students.objects.get(id=pk)
         subject.delete()
         return Response({'message':'delete success'},status=status.HTTP_200_OK)
+    
+class IsDebtorView(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        students = Education_students.objects.all().order_by('-pk')
+        serializers = StudentIsDebtorSerializer(students,many= True)
+        list_debtor = []
+        for i in serializers.data:
+            if relativedelta(months=1) + date.today() >= parse_date(i['payment_date']):
+                for k in Education_group.objects.filter(id=i['group_id']):
+                    how_months_does_not_payed = 0 if not parse_date(i['payment_date']) else relativedelta(parse_date(i['payment_date']),date.today()).months + (12*relativedelta(parse_date(i['payment_date']),date.today()).years) - 1
+                    list_debtor.append({
+                        'id':i['id'],
+                        'full_name':i['first_name']+" "+i['last_name']+" "+i['midile_name'],
+                        'is_debtor':'qarzdor',
+                        'groups':k.name,
+                        'how_months_does_not_payed':how_months_does_not_payed
+                    })
+        return Response({"is_debtor":list_debtor},status=status.HTTP_200_OK)
+        

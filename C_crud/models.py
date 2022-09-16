@@ -1,3 +1,4 @@
+from re import T
 from django.db import models
 from B_authentication.models import *
 
@@ -35,6 +36,6 @@ class Education_students(models.Model):
     education_main = models.ForeignKey(Education_main,on_delete=models.CASCADE, null=False,blank=False)
     education_filial = models.ForeignKey(Education_filial,on_delete=models.CASCADE, null=False,blank=False)
     group_id = models.ForeignKey(Education_group,on_delete=models.CASCADE,null=False,blank=False)
-    payment_date = models.DateField(null=False,blank=False)
-    create_date = models.DateTimeField(auto_now_add=True)
+    payment_date = models.DateField(null=True,blank=True)
+    create_date = models.DateField()
     update_date = models.DateTimeField(auto_now_add=True)
