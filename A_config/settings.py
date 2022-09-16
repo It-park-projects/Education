@@ -83,6 +83,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
         'NAME': 'EducationDemoBase',
+        # 'PASSWORD': '05769452',
         'PASSWORD': '1234',
         'USER': 'postgres',
         'HOST': '127.0.0.1',
@@ -180,8 +181,9 @@ SIMPLE_JWT = {
 # cors
 CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8000",
+    "http://127.0.0.1:8080",
     "http://192.168.137.78",
-    "http://localhost:3000",
+    "http://localhost:8080",
     # "http://192.168.1.26",
-    "http://192.168.137.135:3000",
+    "http://192.168.137.22:8080",
 ]
