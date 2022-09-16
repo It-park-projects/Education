@@ -9,6 +9,7 @@ from rest_framework_simplejwt.token_blacklist.models import OutstandingToken, Bl
 from django.contrib.auth.models import User
 from django.contrib.auth import logout
 from django.shortcuts import get_list_or_404
+from django.http import HttpResponse
 from B_authentication.models import *
 from B_authentication.serializers import *
 from B_authentication.renderers import *
@@ -137,3 +138,43 @@ class AllUsers(APIView):
         user = CustumUsers.objects.all()
         serializer = CustomUserSerializer(user,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
+
+class AllFillialManager(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        user = CustumUsers.objects.filter(groups__name__in = ['Fillial Maneger'])
+        serializers = CustomUserSerializer(user,many=True)
+        list_fillial_user = []
+        for i in serializers.data:
+            for j in Education_filial.objects.filter(id = i['education_filial']):
+                for t in Education_main.objects.filter(id = i['education_main']):
+                    list_fillial_user = [{
+                        'first_name':i['first_name'],
+                        'last_name':i['last_name'] ,
+                        'midile_name':i['midile_name'] ,
+                        'phone':i['phone'] ,
+                        'passort_seria':i['passort_seria'],
+                        'address':i['address'] ,
+                        'price':i['price'],
+                        'total_price_persent':i['total_price_persent'] ,
+                        'education_main':t.education_name,
+                        'education_filial':j.education_name,
+                        'username':i['username'] , 
+                    }]
+        return Response(list_fillial_user,status=status.HTTP_200_OK)
+
+
+
+def total_statistics(request):
+    total_manager_user = CustumUsers.objects.filter(groups__name__in = ['Manager']).count()
+    total_fillial_manager_user = CustumUsers.objects.filter(groups__name__in = ['Fillial Maneger']).count()
+    total_teacher_user = CustumUsers.objects.filter(groups__name__in = ['Teachers']).count()
+    list_statistics = []
+    list_statistics.append({
+        'manager':total_manager_user,
+        'fillial_manager':total_fillial_manager_user,
+        'teacher':total_teacher_user
+    })
+    return HttpResponse({'msg':list(list_statistics)})
+        
