@@ -22,7 +22,7 @@ class SubjectsViews(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        subjects = Subjects.objects.all()
+        subjects = Subjects.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial)
         serializers = SubjectsList(subjects,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def  post(self,request,format=None):
@@ -48,13 +48,21 @@ class SubjectsDeteileView(APIView):
         subject = Subjects.objects.get(id=pk)
         subject.delete()
         return Response({'message':'delete success'},status=status.HTTP_200_OK)
+class TeacherSubjectsViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        subjects = Subjects.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial,teacher_id = request.user.id)
+        serializers = SubjectsList(subjects,many=True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
 
 # class Group educations
 class GroupEducationViews(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        groups = Education_group.objects.all()
+        print(request.user.education_main)
+        groups = Education_group.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial)
         serializers = EducationGroupSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def  post(self,request,format=None):
@@ -80,13 +88,20 @@ class EducationGroupDeteileView(APIView):
         subject = Education_group.objects.get(id=pk)
         subject.delete()
         return Response({'message':'delete success'},status=status.HTTP_200_OK)
+class TeacherGroupViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        subjects = Education_group.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial,subject_id__teacher_id = request.user.id)
+        serializers = EducationGroupSerializers(subjects,many=True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
 
 # class Student educations
 class StudentEducationViews(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        groups = Education_students.objects.all()
+        groups = Education_students.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial)
         serializers = StudentsSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def  post(self,request,format=None):
@@ -112,6 +127,13 @@ class StudentGroupDeteileView(APIView):
         subject = Education_students.objects.get(id=pk)
         subject.delete()
         return Response({'message':'delete success'},status=status.HTTP_200_OK)
+class TeacherStudentViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        subjects = Education_students.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial,group_id__subject_id__teacher_id = request.user.id)
+        serializers = StudentsSerializers(subjects,many=True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
     
 class IsDebtorView(APIView):
     render_classes = [UserRenderers]

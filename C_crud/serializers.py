@@ -1,13 +1,16 @@
 from rest_framework import serializers
 from django.contrib.auth.hashers import make_password
 from B_authentication.models import *
+from B_authentication.serializers import *
 from C_crud.models import *
 from dateutil.relativedelta import relativedelta
 
 class SubjectsList(serializers.ModelSerializer):
+    teacher_id = CustomUserSerializer(read_only=True)
+    education_filial = EduacationFilialSerializers(read_only=True)
     class Meta:
         model = Subjects
-        fields = ['id','name_subject','price_subject','education_filial','teacher_id']
+        fields = ['id','name_subject','price_subject','education_filial','teacher_id',]
     def create(self, validated_data):
         return Subjects.objects.create(**validated_data)
     def update(self, instance, validated_data):
@@ -20,6 +23,9 @@ class SubjectsList(serializers.ModelSerializer):
 
 # Education Groups
 class EducationGroupSerializers(serializers.ModelSerializer):
+    subject_id = SubjectsList(read_only=True)
+    education_main = EduacationMainSerializers(read_only=True)
+    education_filial = EduacationFilialSerializers(read_only=True)
     class Meta:
         model = Education_group
         fields = ['name','subject_id','education_main','education_filial',]
@@ -34,6 +40,9 @@ class EducationGroupSerializers(serializers.ModelSerializer):
 
 # Sudent Serializers
 class StudentsSerializers(serializers.ModelSerializer):
+    education_main = EduacationMainSerializers(read_only=True)
+    education_filial = EduacationFilialSerializers(read_only=True)
+    group_id = EducationGroupSerializers(read_only=True)
     class Meta:
         model = Education_students
         fields = '__all__'
@@ -59,6 +68,9 @@ class StudentsSerializers(serializers.ModelSerializer):
         return instance
     
 class StudentIsDebtorSerializer(serializers.ModelSerializer):
+    education_main = EduacationMainSerializers(read_only=True)
+    education_filial = EduacationFilialSerializers(read_only=True)
+    group_id = EducationGroupSerializers(read_only=True)
     class Meta:
         model = Education_students
         fields = "__all__"
