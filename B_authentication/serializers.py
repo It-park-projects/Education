@@ -71,6 +71,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.total_price_persent = validated_data.get('total_price_persent', instance.total_price_persent)
         instance.education_main = validated_data.get('education_main', instance.education_main)
         instance.education_filial = validated_data.get('education_filial', instance.education_filial)
+        instance.groups.set(validated_data.get('groups', instance.groups))
         
         instance.save()
         return instance

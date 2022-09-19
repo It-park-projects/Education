@@ -3,8 +3,9 @@ from B_authentication.views import *
 
 urlpatterns = [
     path('all_user/',AllUsers.as_view()),
-    path('all_fillial_user/',AllFillialManager.as_view()),
+    path('all_fillial_user/',AllFillialManager.as_view()),  
     path('all_fillial_teacher/',AllFillialTeacher.as_view()),
+    path('all_fillial_students/',ManagerStudetsViews.as_view()),
     path('total_statistics/',total_statistics),
     path('user_login/',UserLoginView.as_view()),
     path('user_register/',UserRegisterView.as_view()),

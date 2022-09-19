@@ -11,7 +11,7 @@ class Subjects(models.Model):
     
     def __str__(self):
         return self.name_subject
-
+ 
 class Education_group(models.Model):
     name = models.CharField(max_length=100,null=False,blank=False)
     subject_id = models.ForeignKey(Subjects,on_delete=models.CASCADE, null=False,blank=False) 

@@ -118,7 +118,7 @@ class StudentGroupDeteileView(APIView):
         serializers = StudentsSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def put(self,request,pk,format=None):
-        serializers = StudentsSerializers(instance=Education_group.objects.filter(id=pk)[0],data=request.data,partial=True)
+        serializers = StudentsSerializers(instance=Education_students.objects.filter(id=pk)[0],data=request.data,partial=True)
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'message':"success update date"},status=status.HTTP_200_OK)

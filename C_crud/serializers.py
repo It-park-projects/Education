@@ -65,6 +65,7 @@ class StudentsSerializers(serializers.ModelSerializer):
         instance.education_filial = validated_data.get('education_filial',instance.education_filial)
         instance.group_id = validated_data.get('group_id',instance.group_id)
         instance.update_date = validated_data.get('update_date',instance.update_date)
+        instance.save()
         return instance
     
 class StudentIsDebtorSerializer(serializers.ModelSerializer):

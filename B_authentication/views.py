@@ -15,7 +15,8 @@ from django.http import HttpResponse
 from B_authentication.models import *
 from B_authentication.serializers import *
 from B_authentication.renderers import *
-
+from C_crud.serializers import *
+from C_crud.models import *
 # token Olish
 def get_token_for_user(user):
     refresh = RefreshToken.for_user(user)
@@ -49,7 +50,6 @@ class UserRegisterView(APIView):
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'msg':'success'},status=status.HTTP_201_CREATED)
-    
         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
 class UserProfilesView(APIView):
     render_classes = [UserRenderers]
@@ -112,7 +112,6 @@ class EducationFiliDeteileViews(APIView):
         serializers = EduacationFilialSerializers(education,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def put(self,request,pk,format=None):
-        # education = Education_filial.objects.get(id=pk) 
         serializers = EduacationFilialSerializers(instance=Education_filial.objects.filter(id=pk)[0],data=request.data,partial =True)
         if serializers.is_valid(raise_exception=True):
             serializers.save()
@@ -122,25 +121,39 @@ class AllUsers(GenericAPIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     filter_backends = [SearchFilter,OrderingFilter]
-    search_fields = ['username']
+    search_fields = ['username','first_name','last_name']
     ordering_fields = ['id']
     def get(self,request,format=None):
-        query = self.filter_queryset(CustumUsers.objects.all())
-        serializer = CustomUserSerializer(query,many=True)
+        queryset = self.filter_queryset(CustumUsers.objects.all())
+        serializer = CustomUserSerializer(queryset,many=True)
         return Response(serializer.data,status=status.HTTP_200_OK)
 class AllFillialManager(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
+    filter_backends = [SearchFilter,OrderingFilter]
+    search_fields = ['username','first_name','last_name']
+    ordering_fields = ['id']
     def get(self,request,format=None):
+        # query = self.filter_queryset(CustumUsers.objects.filter(groups__name__in = ['Fillial Maneger'],education_main=request.user.education_main.id).order_by('-pk'))
         users = CustumUsers.objects.filter(groups__name__in = ['Fillial Maneger'],education_main=request.user.education_main.id).order_by('-pk')
         serializers = CustomUserSerializer(users,many= True)
         return Response(serializers.data,status=status.HTTP_200_OK)
 class AllFillialTeacher(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
+    filter_backends = [SearchFilter,OrderingFilter]
+    search_fields = ['username','first_name','last_name']
+    ordering_fields = ['id']
     def get(self,request,format=None):
         users = CustumUsers.objects.filter(groups__name__in = ['Teacher'],education_main=request.user.education_main.id).order_by('-pk')
         serializers = CustomUserSerializer(users,many= True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
+class ManagerStudetsViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    def get(self,request,format=None):
+        groups = Education_students.objects.filter(education_filial__id_education = request.user.education_main)
+        serializers = StudentsSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
 def total_statistics(request):
     total_manager_user = CustumUsers.objects.filter(groups__name__in = ['Manager']).count()
