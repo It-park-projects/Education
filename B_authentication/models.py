@@ -1,5 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from B_authentication.querysets import group_manager
+
 
 class Education_main(models.Model):
     education_name = models.CharField(max_length=100,null=True,blank=True)
@@ -22,6 +24,11 @@ class Education_filial(models.Model):
     payment_date = models.DateField(null=True,blank=True)
     create_date = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(auto_now_add=True)
+    objects = models.Manager()
+    fl = group_manager.FillialManager()
+    
+    
+
     def __str__(self ):
         return self.education_name
 

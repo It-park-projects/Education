@@ -90,7 +90,7 @@ class UserPorfilesSerializers(serializers.ModelSerializer):
 
 class CustomUserSerializer(serializers.ModelSerializer):
     # education_filial = serializers.ReadOnlyField(source='education_filial.education_name')
-    education_main = serializers.ReadOnlyField(source='education_main.education_name')
+    education_main = EduacationMainSerializers(read_only=True)
     # ManyToMany dan faqat bita fields ni uqiydi
     # groups = serializers.SlugRelatedField(
     #     many=True,

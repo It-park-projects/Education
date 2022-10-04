@@ -10,5 +10,5 @@ class PaymentStudent(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     update_date = models.DateTimeField(null=True,blank=True)
     
-    def __str__(self):
-        return f'{self.full_student_name.first_name}'
+    def __str__(self ):
+        return self.price_payment

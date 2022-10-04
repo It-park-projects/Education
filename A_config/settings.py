@@ -83,7 +83,7 @@ WSGI_APPLICATION = 'A_config.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'EducationDemoBase',
+        'NAME': 'It park',
         # 'PASSWORD': '05769452',
         'PASSWORD': '1234',
         'USER': 'postgres',
@@ -185,6 +185,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://127.0.0.1:8080",
     "http://192.168.137.78",
     "http://localhost:8080",
-    # "http://192.168.1.26",
+    "https://3e84-185-250-206-164.eu.ngrok.io",
     "http://192.168.137.22:8080",
+    'http://34.73.83.172'
 ]

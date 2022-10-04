@@ -11,10 +11,11 @@ class PaymentView(APIView):
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
         subjects = PaymentStudent.objects.all()
+        
         serializers = StudentPaymentSerializers(subjects,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def  post(self,request,format=None):
-        serializers = StudentPaymentSerializers(data=request.data)
+        serializers = StudentPaymentSerializers(data=request.data,context = {'user_education_filial':request.user.education_filial})
         if serializers.is_valid(raise_exception=True):
             serializers.save() 
             return Response({'msg':'success'},status=status.HTTP_201_CREATED)
@@ -27,7 +28,7 @@ class PaymentDetailView(APIView):
         serializers = StudentPaymentSerializers(subject,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def put(self,request,pk,format=None):
-        serializers = StudentPaymentSerializers(instance=PaymentStudent.objects.filter(id=pk)[0],data=request.data,partial=True)
+        serializers = StudentPaymentSerializers(instance=PaymentStudent.objects.filter(id=pk)[0],data=request.data,partial=True,context = {'user_education_filial':request.user.education_filial})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'message':"success update date"},status=status.HTTP_200_OK)

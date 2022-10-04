@@ -2,6 +2,7 @@ from rest_framework.response import Response
 from rest_framework import status,authentication,permissions
 from rest_framework import permissions, status
 from rest_framework.views import APIView
+from rest_framework.filters import SearchFilter,OrderingFilter
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.permissions import IsAuthenticated
@@ -22,11 +23,11 @@ class SubjectsViews(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        subjects = Subjects.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial)
+        subjects = Subjects.objects.filter(education_filial = request.user.education_filial).order_by('-id')
         serializers = SubjectsList(subjects,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def  post(self,request,format=None):
-        serializers = SubjectsList(data=request.data)
+        serializers = CreateSubjectSerializer(data=request.data,context={'user_education_filial':request.user.education_filial})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'msg':'success'},status=status.HTTP_201_CREATED)
@@ -39,10 +40,10 @@ class SubjectsDeteileView(APIView):
         serializers = SubjectsList(subject,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def put(self,request,pk,format=None):
-        serializers = SubjectsList(instance=Subjects.objects.filter(id=pk)[0],data=request.data,partial=True)
+        serializers = CreateSubjectSerializer(instance=Subjects.objects.filter(id=pk)[0],data=request.data,partial=True,context={'user_education_filial':request.user.education_filial})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
-            return Response({'message':"success update date"},status=status.HTTP_200_OK)
+            return Response({'message':'update success'},status=status.HTTP_200_OK)
         return Response({'error':'update error data'},status=status.HTTP_400_BAD_REQUEST)
     def delete(self,request,pk,format=None):
         subject = Subjects.objects.get(id=pk)
@@ -56,17 +57,27 @@ class TeacherSubjectsViews(APIView):
         serializers = SubjectsList(subjects,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
 
+class AllFillialTeacherViews(APIView):
+    render_classes = [UserRenderers]
+    perrmisson_class = [IsAuthenticated]
+    filter_backends = [SearchFilter,OrderingFilter]
+    search_fields = ['username','first_name','last_name']
+    ordering_fields = ['id']
+    def get(self,request,format=None):
+        users = CustumUsers.objects.filter(groups__name__in = ['Teacher'],education_main=request.user.education_main.id,education_filial = request.user.education_filial).order_by('-pk')
+        serializers = CustomUserSerializer(users,many= True)
+        return Response(serializers.data,status=status.HTTP_200_OK)
+
 # class Group educations
 class GroupEducationViews(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        print(request.user.education_main)
         groups = Education_group.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial)
-        serializers = EducationGroupSerializers(groups,many=True)
+        serializers = EducationGroupSerializers(groups, many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
-    def  post(self,request,format=None):
-        serializers = EducationGroupSerializers(data=request.data)
+    def post(self,request,format=None):
+        serializers = CreateGroupSerializer(data=request.data,context={'user_education_filial':request.user.education_filial,'user_education_main':request.user.education_main})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'msg':'success'},status=status.HTTP_201_CREATED)
@@ -79,7 +90,7 @@ class EducationGroupDeteileView(APIView):
         serializers = EducationGroupSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def put(self,request,pk,format=None):
-        serializers = EducationGroupSerializers(instance=Education_group.objects.filter(id=pk)[0],data=request.data,partial=True)
+        serializers = CreateGroupSerializer(instance=Education_group.objects.filter(id=pk)[0],data=request.data,partial=True,context={'user_education_filial':request.user.education_filial,'user_education_main':request.user.education_main})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'message':"success update date"},status=status.HTTP_200_OK)
@@ -105,11 +116,12 @@ class StudentEducationViews(APIView):
         serializers = StudentsSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def  post(self,request,format=None):
-        serializers = StudentsSerializers(data=request.data)
+        serializers = CreateStudentSerialers(data=request.data,context={'user_education_filial':request.user.education_filial,'user_education_main':request.user.education_main})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'msg':'success'},status=status.HTTP_201_CREATED)
         return Response(serializers.errors,status=status.HTTP_400_BAD_REQUEST)
+
 class StudentGroupDeteileView(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
@@ -118,7 +130,7 @@ class StudentGroupDeteileView(APIView):
         serializers = StudentsSerializers(groups,many=True)
         return Response(serializers.data,status=status.HTTP_200_OK)
     def put(self,request,pk,format=None):
-        serializers = StudentsSerializers(instance=Education_students.objects.filter(id=pk)[0],data=request.data,partial=True)
+        serializers = CreateStudentSerialers(instance=Education_students.objects.filter(id=pk)[0],data=request.data,partial=True,context={'user_education_filial':request.user.education_filial,'user_education_main':request.user.education_main})
         if serializers.is_valid(raise_exception=True):
             serializers.save()
             return Response({'message':"success update date"},status=status.HTTP_200_OK)
@@ -139,19 +151,19 @@ class IsDebtorView(APIView):
     render_classes = [UserRenderers]
     perrmisson_class = [IsAuthenticated]
     def get(self,request,format=None):
-        students = Education_students.objects.all().order_by('-pk')
+        students = Education_students.objects.filter(education_filial__id_education = request.user.education_main,education_filial = request.user.education_filial).order_by('-pk')
         serializers = StudentIsDebtorSerializer(students,many= True)
         list_debtor = []
+        groups = []
         for i in serializers.data:
             if relativedelta(months=1) + date.today() >= parse_date(i['payment_date']):
-                for k in Education_group.objects.filter(id=i['group_id']):
+               
                     how_months_does_not_payed = 0 if not parse_date(i['payment_date']) else relativedelta(parse_date(i['payment_date']),date.today()).months + (12*relativedelta(parse_date(i['payment_date']),date.today()).years) - 1
                     list_debtor.append({
                         'id':i['id'],
                         'full_name':i['first_name']+" "+i['last_name']+" "+i['midile_name'],
                         'is_debtor':'qarzdor',
-                        'groups':k.name,
-                        'how_months_does_not_payed':how_months_does_not_payed
+                        'how_months_does_not_payed':abs(how_months_does_not_payed)
                     })
         return Response({"is_debtor":list_debtor},status=status.HTTP_200_OK)
         
